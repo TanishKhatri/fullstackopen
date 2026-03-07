@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import peopleServices from './services/services'
 
 const Filter = ({handleSearch}) => <div>filter shown with <input type="text" onChange={handleSearch} /></div>
 
@@ -32,9 +32,9 @@ const App = () => {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then(response => setPersons(response.data))
+    peopleServices
+      .getAll()
+      .then(personsData => setPersons(personsData))
   }, [])
 
   function handleFormSubmission(event) {
@@ -47,11 +47,9 @@ const App = () => {
       name: newName,
       number: newNumber  
     }
-    axios
-      .post("http://localhost:3001/persons", personObject)
-      .then(response => {
-        setPersons(persons.concat(response.data))
-      })
+    peopleServices
+      .create(personObject)
+      .then(p => setPersons(persons.concat(p)))
   }
 
   return (
