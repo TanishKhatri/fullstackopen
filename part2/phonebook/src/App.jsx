@@ -3,12 +3,12 @@ import axios from 'axios'
 
 const Filter = ({handleSearch}) => <div>filter shown with <input type="text" onChange={handleSearch} /></div>
 
-const PersonForm = ({onSubmit, setNewName, setNewPhone, newName, newPhone}) => {
+const PersonForm = ({onSubmit, setNewName, setNewNumber, newName, newNumber}) => {
   return (
     <form onSubmit={onSubmit}>
       <div>
         <div>name: <input type="text" value={newName} onChange={(event) => setNewName(event.target.value)}/></div>
-        <div>phone: <input type="text" value={newPhone} onChange={(event) => setNewPhone(event.target.value)} /></div>
+        <div>phone: <input type="text" value={newNumber} onChange={(event) => setNewNumber(event.target.value)} /></div>
       </div>
       <div>
         <button type="submit">add</button>
@@ -21,14 +21,14 @@ const Persons = ({persons, search}) => {
   return (
     persons
     .filter((person) => person.name.toUpperCase().includes(search.toUpperCase()))
-    .map(person => <p key={person.name}>{person.name} {person.phone}</p>)
+    .map(person => <p key={person.name}>{person.name} {person.number}</p>)
   )
 }
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
-  const [newPhone, setNewPhone] = useState('')
+  const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -45,7 +45,7 @@ const App = () => {
     }
     const personObject = {
       name: newName,
-      phone: newPhone  
+      number: newNumber  
     }
     setPersons(persons.concat(personObject))
   }
@@ -59,9 +59,9 @@ const App = () => {
       <PersonForm 
        onSubmit={handleFormSubmission}
        newName={newName}
-       newPhone={newPhone}
+       newNumber={newNumber}
        setNewName={setNewName}
-       setNewPhone={setNewPhone}
+       setNewNumber={setNewNumber}
       />
       <h2>Numbers</h2>
       <div>
