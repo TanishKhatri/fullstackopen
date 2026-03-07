@@ -17,11 +17,11 @@ const PersonForm = ({onSubmit, setNewName, setNewNumber, newName, newNumber}) =>
   )
 }
 
-const Persons = ({persons, search}) => {
+const Persons = ({persons, search, deleteOnClick}) => {
   return (
     persons
     .filter((person) => person.name.toUpperCase().includes(search.toUpperCase()))
-    .map(person => <p key={person.name}>{person.name} {person.number}</p>)
+    .map(person => <p key={person.name}>{person.name} {person.number} <button onClick={() => deleteOnClick(person.id)}>delete</button></p>)
   )
 }
 
@@ -36,6 +36,15 @@ const App = () => {
       .getAll()
       .then(personsData => setPersons(personsData))
   }, [])
+
+  const deleteOnClick = (id) => {
+    const person = persons.find(p => p.id === id)
+    if (!confirm(`Delete ${person.name} ?`)) {
+      return;
+    }
+    peopleServices.deletePerson(id)
+    setPersons(persons.filter(person => person.id !== id))
+  }
 
   function handleFormSubmission(event) {
     event.preventDefault()
@@ -67,7 +76,7 @@ const App = () => {
       />
       <h2>Numbers</h2>
       <div>
-        <Persons persons={persons} search={search} />
+        <Persons persons={persons} search={search} deleteOnClick={deleteOnClick} />
       </div>
     </div>
   )
