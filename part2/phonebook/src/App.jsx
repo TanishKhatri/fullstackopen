@@ -25,11 +25,43 @@ const Persons = ({persons, search, deleteOnClick}) => {
   )
 }
 
+const completionMessageStyle = {
+  color: 'lightgreen',
+  border: '5px solid lightgreen',
+  backgroundColor: 'grey',
+  padding: '10px 20px',
+  marginBottom: '10px',
+  fontSize: '40px'
+}
+
+const errorMessageStyle = {
+  color: 'red',
+  border: '5px solid red',
+  backgroundColor: 'lightgrey',
+  padding: '10px 20px',
+  marginBottom: '10px',
+  fontSize: '40px'
+}
+
+const CompletionMessage = ({ message, style }) => {
+  if (message === null) {
+    return null;
+  }
+
+  return (
+    <div style={style}>
+      {message}
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
+  const [compMessage, setCompMessage] = useState(null)
+  const [messageStyle, setMessageStyle] = useState(completionMessageStyle)
 
   useEffect(() => {
     peopleServices
@@ -59,6 +91,19 @@ const App = () => {
         .update(id, personObject)
         .then(p => {
           setPersons(persons.map(person => person.id === id ? p : person))
+          setCompMessage(`The number of ${p.name} has been changed to ${p.number}`)
+          setTimeout(() => {
+            setCompMessage(null)
+          }, 5000)
+        })
+        .catch(() => {
+          setMessageStyle(errorMessageStyle)
+          setCompMessage(`${personObject.name} has already been deleted from the server`)
+          setTimeout(() => {
+            setCompMessage(null)
+            setMessageStyle(completionMessageStyle)
+          }, 5000)
+          setPersons(persons.filter(person => person.id !== id))
         })
       return;
     }
@@ -68,12 +113,20 @@ const App = () => {
     }
     peopleServices
       .create(personObject)
-      .then(p => setPersons(persons.concat(p)))
+      .then(p => {
+        setPersons(persons.concat(p))
+        setCompMessage(`Added Person: ${p.name} with number ${p.number}`)
+        setTimeout(() => {
+          setCompMessage(null)
+        }, 5000)
+      })
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <CompletionMessage message={compMessage} style={messageStyle}/>
+
       <Filter handleSearch={(event) => setSearch(event.target.value)} />
 
       <h2>add a new</h2>
