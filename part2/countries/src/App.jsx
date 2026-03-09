@@ -5,16 +5,17 @@ import CountryDisplay from './components/countryDisplay'
 const CountriesInSearch = ( {countryList, searchQuery, showButtonOnClick} ) => {
   const [countryObject, setCountryObject] = useState(null)
   const newList = countryList.filter(c => c.toUpperCase().includes(searchQuery.toUpperCase()))
+  const country = newList[0];
 
   useEffect(() => {
     if (newList.length === 1) {
       services
-        .getOneCountry(newList[0])
+        .getOneCountry(country)
         .then((response) => {
           setCountryObject(response)
         })
     } 
-  }, [newList])
+  }, [newList.length, country])
 
   if (newList.length > 10) {
     return (
