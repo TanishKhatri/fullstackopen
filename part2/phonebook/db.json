@@ -1,11 +1,6 @@
 {
   "persons": [
     {
-      "name": "Mary Poppendieck",
-      "number": "39-23-6423122",
-      "id": "4"
-    },
-    {
       "name": "Maybe we fix",
       "number": "200-2223-499",
       "id": "aaba"
@@ -19,6 +14,11 @@
       "id": "483c",
       "name": "Someone new",
       "number": "14442-44556"
+    },
+    {
+      "id": "e9c5",
+      "name": "fireman",
+      "number": "12141902511"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
