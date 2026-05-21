@@ -95,6 +95,8 @@ const App = () => {
           setTimeout(() => {
             setCompMessage(null)
           }, 5000)
+          setNewName('')
+          setNewNumber('')
         })
         .catch(() => {
           setMessageStyle(errorMessageStyle)
@@ -104,6 +106,8 @@ const App = () => {
             setMessageStyle(completionMessageStyle)
           }, 5000)
           setPersons(persons.filter(person => person.id !== id))
+          setNewName('')
+          setNewNumber('')
         })
       return;
     }
@@ -119,6 +123,8 @@ const App = () => {
         setTimeout(() => {
           setCompMessage(null)
         }, 5000)
+        setNewName('')
+        setNewNumber('')
       })
   }
 
