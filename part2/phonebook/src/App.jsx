@@ -98,16 +98,35 @@ const App = () => {
           setNewName('')
           setNewNumber('')
         })
-        .catch(() => {
+        .catch((error) => {
           setMessageStyle(errorMessageStyle)
-          setCompMessage(`${personObject.name} has already been deleted from the server`)
-          setTimeout(() => {
-            setCompMessage(null)
-            setMessageStyle(completionMessageStyle)
-          }, 5000)
-          setPersons(persons.filter(person => person.id !== id))
-          setNewName('')
-          setNewNumber('')
+          if (error.response && error.response.status === 400) {
+            const serverMessage = error.response.data.error
+            setCompMessage(`${serverMessage}`)
+            setTimeout(() => {
+              setCompMessage(null)
+              setMessageStyle(completionMessageStyle)
+            }, 5000)
+            setNewName('')
+            setNewNumber('')
+          } else if (error.response && error.response.status === 404) {
+            setCompMessage(`Error: It seems that this person has already been deleted`)
+            setTimeout(() => {
+              setCompMessage(null)
+              setMessageStyle(completionMessageStyle)
+            }, 5000)
+            setPersons(persons.filter(person => person.id !== id))
+            setNewName('')
+            setNewNumber('')
+          } else {
+            setCompMessage(`An Internal Server Error Occured `)
+            setTimeout(() => {
+              setCompMessage(null)
+              setMessageStyle(completionMessageStyle)
+            }, 5000)
+            setNewName('')
+            setNewNumber('')
+          }
         })
       return;
     }
@@ -125,6 +144,27 @@ const App = () => {
         }, 5000)
         setNewName('')
         setNewNumber('')
+      })
+      .catch(error => {
+        setMessageStyle(errorMessageStyle)
+        if (error.response && error.response.status === 400) {
+          const serverMessage = error.response.data.error
+          setCompMessage(`${serverMessage}`)
+          setTimeout(() => {
+            setCompMessage(null)
+            setMessageStyle(completionMessageStyle)
+          }, 5000)
+          setNewName('')
+          setNewNumber('')
+        } else {
+          setCompMessage(`An Internal Server Error Occured `)
+          setTimeout(() => {
+            setCompMessage(null)
+            setMessageStyle(completionMessageStyle)
+          }, 5000)
+          setNewName('')
+          setNewNumber('')
+        }
       })
   }
 
