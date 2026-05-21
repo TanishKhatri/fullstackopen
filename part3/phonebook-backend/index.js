@@ -1,36 +1,17 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
+const Person = require('./models/person')
 app.use(express.json())
 morgan.token('postString', function(req, res) {return JSON.stringify(req.body)})
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postString'))
 app.use(express.static('dist'))
 
-let persons = [
-  { 
-    "id": "1",
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": "2",
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": "3",
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": "4",
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
-
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 app.get('/info', (request, response) => {
@@ -72,17 +53,15 @@ app.post('/api/persons', (request, response) => {
       error: 'number field is empty'
     })
   }
+  
+  const newPerson = new Person({
+    name: body.name,
+    number: body.number
+  })
 
-  if (persons.find(p => p.name === body.name)) {
-    return response.status(400).json({
-      error: 'name is not unique'
-    })
-  }
-
-  const newPerson = body
-  newPerson.id = String(Math.floor(Math.random() * 10000000))
-  persons = persons.concat(newPerson)
-  response.json(newPerson)
+  newPerson.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
 
 const PORT = process.env.PORT || 3001
