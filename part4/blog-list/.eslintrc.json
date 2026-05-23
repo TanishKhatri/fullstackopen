@@ -1,0 +1,10 @@
+{
+  "extends": ["airbnb-base"],
+  "ignorePatterns": ["dist/"],
+  "rules": {
+    "no-console": "off",
+    "no-param-reassign": "off",
+    "no-underscore-dangle": "off",
+    "prefer-destructuring": "off"
+  }
+}
