@@ -166,9 +166,9 @@ describe('most blogs', () => {
   ];
 
   test('Returns the only author and 1 blogs', () => {
-    assert.deepStrictEqual(listHelper.mostBlogs(listWithOneBlog), { 
+    assert.deepStrictEqual(listHelper.mostBlogs(listWithOneBlog), {
       author: 'Edsger W. Dijkstra',
-      blogs: 1
+      blogs: 1,
     });
   });
 
@@ -226,7 +226,7 @@ describe('most blogs', () => {
   test('Returns the author with the most blogs, along with the number', () => {
     assert.deepStrictEqual(listHelper.mostBlogs(blogs), {
       author: 'Robert C. Martin',
-      blogs: 3
+      blogs: 3,
     });
   });
 });
@@ -244,9 +244,9 @@ describe('most likes', () => {
   ];
 
   test('Returns the only author and their likes', () => {
-    assert.deepStrictEqual(listHelper.mostLikes(listWithOneBlog), { 
+    assert.deepStrictEqual(listHelper.mostLikes(listWithOneBlog), {
       author: 'Edsger W. Dijkstra',
-      likes: 5
+      likes: 5,
     });
   });
 
@@ -304,7 +304,7 @@ describe('most likes', () => {
   test('Returns the author with the most Likes, along with the number', () => {
     assert.deepStrictEqual(listHelper.mostLikes(blogs), {
       author: 'Edsger W. Dijkstra',
-      likes: 17
+      likes: 17,
     });
   });
 });
