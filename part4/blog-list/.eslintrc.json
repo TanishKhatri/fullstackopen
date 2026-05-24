@@ -6,5 +6,8 @@
     "no-param-reassign": "off",
     "no-underscore-dangle": "off",
     "prefer-destructuring": "off"
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest" 
   }
 }
