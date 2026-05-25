@@ -91,6 +91,37 @@ test('If url or title are missing then status is 400 bad request', async () => {
     .expect(400);
 });
 
+test('Can delete a blog', async () => {
+  const allBlogs = await helper.getAllBlogs();
+  const blog1Id = allBlogs[0].id;
+
+  await api
+    .delete(`/api/blogs/${blog1Id}`)
+    .expect(204);
+
+  const afterDeletion = await helper.getAllBlogs();
+  assert.strictEqual(afterDeletion.length, helper.blogsList.length - 1);
+});
+
+test('Can update a blog', async () => {
+  const allBlogs = await helper.getAllBlogs();
+  const updatedBlog1 = {
+    title: 'Blog Changed',
+    author: 'The new author',
+    url: 'The new url',
+    likes: 32,
+  };
+  const blog1Id = allBlogs[0].id;
+
+  const result = await api
+    .put(`/api/blogs/${blog1Id}`)
+    .send(updatedBlog1)
+    .expect(200)
+    .expect('Content-Type', /application\/json/);
+
+  assert.partialDeepStrictEqual(result.body, updatedBlog1);
+});
+
 after(() => {
   mongoose.connection.close();
 });
