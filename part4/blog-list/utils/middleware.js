@@ -20,6 +20,8 @@ const errorHandler = (error, req, res, next) => {
     res.status(400).send({ error: 'malformatted id' });
   } else if (error.name === 'ValidationError') {
     res.status(400).send({ error: error.message });
+  } else if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')) {
+    res.status(400).send({ error: error.message });
   }
 
   return next();

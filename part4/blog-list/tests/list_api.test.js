@@ -3,6 +3,7 @@ const {
   after, describe,
 } = require('node:test');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const assert = require('node:assert');
 const supertest = require('supertest');
 const Blog = require('../models/blog');
@@ -135,7 +136,16 @@ describe('Tests for the /api/blogs route', () => {
 describe('Tests for the /api/users route', () => {
   beforeEach(async () => {
     await User.deleteMany({});
-    await User.insertMany(helper.usersList);
+    const userObjects = helper.usersList.map(async (user) => {
+      const newUser = new User({
+        username: user.username,
+        name: user.name,
+        passwordHash: await bcrypt.hash(user.password, 10),
+      });
+      await newUser.save();
+    });
+
+    await Promise.all(userObjects);
   });
 
   test('A new user can be added', async () => {
@@ -157,6 +167,57 @@ describe('Tests for the /api/users route', () => {
     assert.strictEqual(allCurrUsers.length, prevUsers.length + 1);
     const usernames = allCurrUsers.map((u) => u.username);
     assert(usernames.includes(newUser.username));
+  });
+
+  describe('Checks for invalid user creation', () => {
+    test('username cannot be less than 3 characters', async () => {
+      const newUser = {
+        username: 'ha',
+        name: 'iron man',
+        password: 'spiderman?',
+      };
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+      assert(result.body.error.includes('The length of username must be more or equal to 3'));
+    });
+
+    test('password cannot be less than 3 characters', async () => {
+      const newUser = {
+        username: 'hawkeye',
+        name: 'iron man',
+        password: 'ai',
+      };
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+      assert(result.body.error.includes('`password` must be atleast 3 characters long'));
+    });
+
+    test('duplicate usernames are not allowed', async () => {
+      const currUsers = await helper.getAllUsers();
+      const firstUser = currUsers[0];
+
+      const newUser = {
+        username: firstUser.username,
+        name: 'Someone',
+        password: 'goodPassword',
+      };
+
+      await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+    });
   });
 });
 after(() => {
