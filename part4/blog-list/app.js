@@ -5,6 +5,7 @@ const logger = require('./utils/logger');
 const middleware = require('./utils/middleware');
 const blogs = require('./controllers/blogs');
 const users = require('./controllers/users');
+const login = require('./controllers/login');
 
 const app = express();
 mongoose
@@ -20,6 +21,7 @@ app.use(middleware.requestLogger);
 
 app.use('/api/blogs', blogs);
 app.use('/api/users', users);
+app.use('/api/login', login);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

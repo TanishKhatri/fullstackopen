@@ -12,11 +12,11 @@ usersRouter.post('/', async (req, res) => {
   const body = req.body;
 
   if (!(body.username && body.password)) {
-    return res.status(400).send({ error: '`username` or `password` not specified' });
+    return res.status(400).json({ error: '`username` or `password` not specified' });
   }
 
   if (body.password.length < 3) {
-    return res.status(400).send({ error: '`password` must be atleast 3 characters long' });
+    return res.status(400).json({ error: '`password` must be atleast 3 characters long' });
   }
 
   const saltRounds = 10;
