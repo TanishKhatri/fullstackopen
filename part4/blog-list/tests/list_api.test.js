@@ -148,6 +148,17 @@ describe('Tests for the /api/users route', () => {
     await Promise.all(userObjects);
   });
 
+  test('All users are shown', async () => {
+    const before = await helper.getAllUsers();
+
+    const result = await api
+      .get('/api/users')
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+
+    assert.strictEqual(before.length, result.body.length);
+  });
+
   test('A new user can be added', async () => {
     const newUser = {
       username: 'hawkeye',
