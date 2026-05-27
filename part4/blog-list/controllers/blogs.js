@@ -13,7 +13,7 @@ blogsRouter.post('/', userExtractor, async (req, res) => {
 
   const theUser = req.user;
   if (!theUser) {
-    return res.status(400).json({ error: 'User doesnt exist or authorization header not specified' });
+    return res.status(401).json({ error: 'User doesnt exist or authorization header not specified' });
   }
 
   const newBlog = new Blog({
@@ -39,7 +39,7 @@ blogsRouter.delete('/:id', userExtractor, async (req, res) => {
   }
   const user = req.user;
   if (!user) {
-    return res.status(400).json({ error: 'User doesnt exist or authorization header not specified' });
+    return res.status(401).json({ error: 'User doesnt exist or authorization header not specified' });
   }
 
   if (user._id.toString() !== blog.user.toString()) {

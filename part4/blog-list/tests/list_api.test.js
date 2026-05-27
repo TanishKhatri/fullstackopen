@@ -4,6 +4,7 @@ const {
 } = require('node:test');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const assert = require('node:assert');
 const supertest = require('supertest');
 const Blog = require('../models/blog');
@@ -40,37 +41,6 @@ describe('Tests for the /api/blogs route', () => {
       assert(Object.hasOwn(listOfAll[0], 'id') && !Object.hasOwn(listOfAll[0], '_id'));
     });
 
-    test('Posting a blog to the database via the api works!', async () => {
-      const newBlog = {
-        title: 'post test blog',
-        author: 'me',
-        url: 'some url',
-        likes: 24,
-      };
-
-      await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(201)
-        .expect('Content-Type', /application\/json/);
-
-      const afterPosting = await helper.getAllBlogs();
-      assert.strictEqual(afterPosting.length, helper.blogsList.length + 1);
-      assert.partialDeepStrictEqual(afterPosting[afterPosting.length - 1], newBlog);
-    });
-
-    test('Can delete a blog', async () => {
-      const allBlogs = await helper.getAllBlogs();
-      const blog1Id = allBlogs[0].id;
-
-      await api
-        .delete(`/api/blogs/${blog1Id}`)
-        .expect(204);
-
-      const afterDeletion = await helper.getAllBlogs();
-      assert.strictEqual(afterDeletion.length, helper.blogsList.length - 1);
-    });
-
     test('Can update a blog', async () => {
       const allBlogs = await helper.getAllBlogs();
       const updatedBlog1 = {
@@ -91,7 +61,72 @@ describe('Tests for the /api/blogs route', () => {
     });
   });
 
-  describe('Error handling tests', () => {
+  describe('Tests that need a jwt signed user token to work', () => {
+    let dummyUserToken;
+    let dummyBlogId;
+    beforeEach(async () => {
+      await Blog.deleteMany({});
+      await User.deleteMany({});
+      const dummyUser = new User({
+        username: 'dummyUser',
+        name: 'please remove',
+        passwordHash: await bcrypt.hash('sherlock', 10),
+      });
+      const returnedDummy = await dummyUser.save();
+      const dummyBlog = new Blog({
+        title: 'dummyBlog 1',
+        author: 'dummy',
+        url: 'itDummy',
+        likes: 9999,
+        user: returnedDummy._id,
+      });
+      const savedDummyBlog = await dummyBlog.save();
+      dummyBlogId = savedDummyBlog._id.toString();
+      returnedDummy.blogs = returnedDummy.blogs.concat(savedDummyBlog._id);
+      await returnedDummy.save();
+      const forToken = {
+        username: returnedDummy.username,
+        id: returnedDummy._id,
+      };
+      dummyUserToken = jwt.sign(forToken, process.env.JWT_SECRET);
+      await Blog.insertMany(helper.blogsList);
+    });
+
+    test('Posting a blog to the database via the api works!', async () => {
+      const beforePosting = await helper.getAllBlogs();
+
+      const newBlog = {
+        title: 'post test blog',
+        author: 'me',
+        url: 'some url',
+        likes: 24,
+      };
+
+      await api
+        .post('/api/blogs')
+        .set('Authorization', `Bearer ${dummyUserToken}`)
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/);
+
+      const afterPosting = await helper.getAllBlogs();
+      assert.strictEqual(afterPosting.length, beforePosting.length + 1);
+      assert.partialDeepStrictEqual(afterPosting[afterPosting.length - 1], newBlog);
+    });
+
+    test('Can delete a blog', async () => {
+      const before = await helper.getAllBlogs();
+      const blog1Id = dummyBlogId;
+
+      await api
+        .delete(`/api/blogs/${blog1Id}`)
+        .set('Authorization', `Bearer ${dummyUserToken}`)
+        .expect(204);
+
+      const afterDeletion = await helper.getAllBlogs();
+      assert.strictEqual(afterDeletion.length, before.length - 1);
+    });
+
     test('If likes property is missing default it to zero', async () => {
       const newBlog = {
         title: 'post test blog 2',
@@ -101,6 +136,7 @@ describe('Tests for the /api/blogs route', () => {
 
       const result = await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${dummyUserToken}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/);
@@ -122,13 +158,31 @@ describe('Tests for the /api/blogs route', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${dummyUserToken}`)
         .send(missingTitle)
         .expect(400);
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${dummyUserToken}`)
         .send(missingURL)
         .expect(400);
+    });
+  });
+
+  describe('Error handling tests', () => {
+    test('Returns 401 error if token not provided', async () => {
+      const newBlog = {
+        title: 'post test blog 2',
+        author: 'me',
+        url: 'some url',
+      };
+
+      await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(401)
+        .expect('Content-Type', /application\/json/);
     });
   });
 });
