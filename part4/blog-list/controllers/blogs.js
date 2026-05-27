@@ -1,7 +1,6 @@
-const jwt = require('jsonwebtoken');
 const blogsRouter = require('express').Router();
 const Blog = require('../models/blog');
-const User = require('../models/user');
+const { userExtractor } = require('../utils/middleware');
 
 blogsRouter.get('/', async (req, res) => {
   const allBlogs = await Blog
@@ -9,18 +8,12 @@ blogsRouter.get('/', async (req, res) => {
   res.json(allBlogs);
 });
 
-blogsRouter.post('/', async (req, res) => {
+blogsRouter.post('/', userExtractor, async (req, res) => {
   const body = req.body;
 
-  const token = req.token;
-  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-  if (!decodedToken) {
-    return res.status(401).json({ error: 'invalid token' });
-  }
-
-  const theUser = await User.findById(decodedToken.id);
+  const theUser = req.user;
   if (!theUser) {
-    return res.status(400).json({ error: 'User Id missing or invalid' });
+    return res.status(400).json({ error: 'User doesnt exist or authorization header not specified' });
   }
 
   const newBlog = new Blog({
@@ -37,21 +30,16 @@ blogsRouter.post('/', async (req, res) => {
   return res.status(201).json(returnedBlog);
 });
 
-blogsRouter.delete('/:id', async (req, res) => {
+blogsRouter.delete('/:id', userExtractor, async (req, res) => {
   const id = req.params.id;
-  const token = req.token;
-  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-  if (!decodedToken) {
-    return res.status(401).json({ error: 'invalid token' });
-  }
 
   const blog = await Blog.findById(id);
   if (!blog) {
     return res.status(400).json({ error: 'provided blogId doesnt exist' });
   }
-  const user = await User.findById(decodedToken.id);
+  const user = req.user;
   if (!user) {
-    return res.status(400).json({ error: 'user is missing or invalid' });
+    return res.status(400).json({ error: 'User doesnt exist or authorization header not specified' });
   }
 
   if (user._id.toString() !== blog.user.toString()) {
