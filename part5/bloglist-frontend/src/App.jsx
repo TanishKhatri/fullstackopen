@@ -55,6 +55,18 @@ const App = () => {
     }
   }
 
+  const handleDelete = async (blogId) => {
+    try {
+      await blogService.deleteBlog(blogId)
+      setBlogs(blogs.filter((blog) => blog.id != blogId ))
+    } catch(error) {
+      setNotificationMessageObj({ message: error.response.data.error, isError: true })
+      setTimeout(() => {
+        setNotificationMessageObj({ message: null, isError: false })
+      }, 5000)
+    }
+  }
+
   const handleLogout = () => {
     window.localStorage.removeItem('blogUser')
     blogService.setToken(null)
@@ -98,7 +110,7 @@ const App = () => {
             <NewBlogForm handleCreation={handleCreation} />
           </Togglable>
           {blogs.toSorted((a, b) => a.likes > b.likes ? -1 : 1 ).map(blog =>
-            <Blog key={blog.id} blog={blog} handleLike={handleLike} />
+            <Blog key={blog.id} blog={blog} handleLike={handleLike} handleDelete={handleDelete} />
           )}
         </div>
       )}
