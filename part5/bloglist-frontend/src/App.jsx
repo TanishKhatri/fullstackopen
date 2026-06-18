@@ -1,16 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [user, setUser] = useState(() => {
    const storedUser = window.localStorage.getItem('blogUser')
    if (storedUser) {
@@ -22,6 +20,7 @@ const App = () => {
   })
   const [blogs, setBlogs] = useState([])
   const [notificationMessageObj, setNotificationMessageObj] = useState({ message: null, isError: false })
+  const newBlogRef = useRef();
 
   useEffect(() => {
     blogService.getAll().then((data) => {
@@ -44,14 +43,26 @@ const App = () => {
     }
   }
 
+  const handleLike = async (blogId, blogObject) => {
+    try {
+      const returnedBlog = await blogService.updateBlog(blogId, blogObject)
+      setBlogs(blogs.map(blog => blog.id === returnedBlog.id ? returnedBlog : blog))
+    } catch {
+      setNotificationMessageObj({ message: `Error occurred in liking the post`, isError: true })
+      setTimeout(() => {
+        setNotificationMessageObj({ message: null, isError: false })
+      }, 5000)
+    }
+  }
+
   const handleLogout = () => {
     window.localStorage.removeItem('blogUser')
     blogService.setToken(null)
     setUser(null)
   }
 
-  const handleCreation = async (event) => {
-    event.preventDefault()
+  const handleCreation = async ({ title, author, url }) => {
+    newBlogRef.current.toggleVisibility();
     try {
       const newBlogObject = await blogService.addBlog({ title, author, url })
       setBlogs(blogs.concat(newBlogObject))
@@ -59,9 +70,6 @@ const App = () => {
       setTimeout(() => {
         setNotificationMessageObj({ message: null, isError: false })
       }, 5000)
-      setTitle('')
-      setAuthor('')
-      setUrl('')
     } catch(error) {
       setNotificationMessageObj({ message: error.response.data.error, isError: true })
       setTimeout(() => {
@@ -86,12 +94,11 @@ const App = () => {
           <Notification message={notificationMessageObj.message} 
             isError={notificationMessageObj.isError} />
           <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
-          <NewBlogForm handleCreation={handleCreation} 
-            title={title} setTitle={setTitle}
-            author={author} setAuthor={setAuthor}
-            url={url} setUrl={setUrl}  />
-          {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+          <Togglable buttonLabel="create new blog" ref={newBlogRef} >
+            <NewBlogForm handleCreation={handleCreation} />
+          </Togglable>
+          {blogs.toSorted((a, b) => a.likes > b.likes ? -1 : 1 ).map(blog =>
+            <Blog key={blog.id} blog={blog} handleLike={handleLike} />
           )}
         </div>
       )}
