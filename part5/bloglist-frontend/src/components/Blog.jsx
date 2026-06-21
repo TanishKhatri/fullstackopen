@@ -17,12 +17,12 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
 
   return (
     <div style={blogStyle}>
-      <div>
+      <div className='blogHeader'>
         {blog.title} {blog.author}
         <button onClick={toggleDetails}>{detailsVisible ? 'hide' : 'view'}</button>
       </div>
       {detailsVisible && (
-        <div>
+        <div className='blogDetails'>
           <div>{blog.url}</div>
           <div>likes {blog.likes} <button onClick={() => handleLike(blog.id, { ...blog, likes: blog.likes + 1 })}>like</button></div>
           <div>{blog.user.name}</div>
