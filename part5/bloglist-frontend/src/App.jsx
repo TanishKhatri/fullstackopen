@@ -4,11 +4,13 @@ import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 import Notification from './components/Notification'
-import Togglable from './components/Togglable'
+import BlogsList from './components/BlogsList'
+import { 
+  BrowserRouter as Router,
+  Routes, Route, Link 
+} from 'react-router-dom'
 
 const App = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(() => {
   	const storedUser = window.localStorage.getItem('blogUser')
     if (storedUser) {
@@ -28,8 +30,7 @@ const App = () => {
     })
   }, [])
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
+  const handleLogin = async (username, password) => {
     try {
       const returnedUser = await blogService.login({ username, password })
       blogService.setToken(returnedUser.token)
@@ -90,31 +91,27 @@ const App = () => {
     }
   }
 
-  console.log(user);
+  const padding = {
+    padding: 5
+  }
+  
   return (
     <div>
-      {!user && (
-        <div>
-          <LoginForm username={username} password={password}
-            setUsername={setUsername} setPassword={setPassword} handleLogin={handleLogin} />
-          <Notification message={notificationMessageObj.message}
-            isError={notificationMessageObj.isError} />
-        </div>
-      )}
-      {user && (
-        <div>
-          <h2>blogs</h2>
-          <Notification message={notificationMessageObj.message}
-            isError={notificationMessageObj.isError} />
-          <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
-          <Togglable buttonLabel="create new blog" ref={newBlogRef} >
-            <NewBlogForm handleCreation={handleCreation} />
-          </Togglable>
-          {blogs.toSorted((a, b) => b.likes - a.likes).map(blog =>
-            <Blog key={blog.id} blog={blog} handleLike={handleLike} handleDelete={handleDelete} userId={user.id}/>
-          )}
-        </div>
-      )}
+      <Router>
+        <Link style={padding} to='/'>blogs</Link>
+        <Link style={padding} to='/create'>new blog</Link>
+        {!user && <Link style={padding} to='/login'>login</Link>}
+        {user && <button onClick={handleLogout}>logout</button>}
+
+        <Routes>
+          <Route path='/' element={
+            <BlogsList blogs={blogs} />
+          } />
+          <Route path='/login' element={
+            <LoginForm handleLogin={handleLogin} />
+          } />
+        </Routes> 
+      </Router>
     </div>
   )
 }
