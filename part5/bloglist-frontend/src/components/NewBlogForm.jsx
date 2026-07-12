@@ -5,21 +5,18 @@ const NewBlogForm = ({ handleCreation }) => {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
-  const handleAdd = (event) => {
+  const handleAdd = async (event) => {
     event.preventDefault()
-    handleCreation({ title, author, url })
-    setTitle('')
-    setAuthor('')
-    setUrl('')
+    await handleCreation({ title, author, url })
   }
 
   return (
     <div>
       <h2>create new</h2>
       <form onSubmit={handleAdd}>
-        <label>title: <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} /></label>
-        <label>author: <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} /></label>
-        <label>url: <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} /></label>
+        <div><label>title: <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} /></label></div>
+        <div><label>author: <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} /></label></div>
+        <div><label>url: <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} /></label></div>
         <button type="submit">create</button>
       </form>
     </div>

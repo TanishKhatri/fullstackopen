@@ -1,32 +1,25 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, handleLike, handleDelete }) => {
-  const [detailsVisible, setDetailsVisible] = useState(false)
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
+const Blog = ({ blog, handleLike, handleDelete, user }) => {
+  if (!blog) {
+    return null
   }
 
-  const toggleDetails = () => {
-    setDetailsVisible(!detailsVisible)
+  const deleteHandler = async () => {
+    await handleDelete(blog.id)
+  }
+
+  const likeHandler = () => {
+    handleLike(blog.id, { ...blog, likes: blog.likes + 1 })
   }
 
   return (
-    <div style={blogStyle}>
-      <div className='blogHeader'>
-        {blog.title} {blog.author}
-        <button onClick={toggleDetails}>{detailsVisible ? 'hide' : 'view'}</button>
-      </div>
-      {detailsVisible && (
-        <div className='blogDetails'>
-          <div>{blog.url}</div>
-          <div>likes {blog.likes} <button onClick={() => handleLike(blog.id, { ...blog, likes: blog.likes + 1 })}>like</button></div>
-          <div>{blog.user.name}</div>
-        </div>
-      )}
+    <div>
+      <h2>{blog.author}: {blog.title}</h2>
+      <div><a href={blog.url} target="_blank">{blog.url}</a></div>
+      <div>likes {blog.likes} {user && <button onClick={likeHandler}>like</button>}</div>
+      <div>Added by {blog.user.name}</div>
+      {user && user.id === blog.user.id && <button onClick={deleteHandler}>remove</button>}
     </div>
   )
 }

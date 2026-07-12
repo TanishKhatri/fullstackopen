@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import Blog from './Blog'
-import userEvent from '@testing-library/user-event'
-
+import { Router } from 'react-router-dom'
 
 describe('Blog tests', () => {
   const blog = {
@@ -16,38 +15,24 @@ describe('Blog tests', () => {
     }
   }
 
-  test('Blog only renders title and author by default', () => {
-    const { container } = render(<Blog blog={blog} />)
-    const element = screen.getByText('Test blog please remove Should not be in frontend')
-    expect(element).toBeDefined()
+  const correctUser = {
+    id: '121523151',
+    username: 'Body Singh',
+    name: 'Big man'
+  }
 
-    const details = container.querySelector('.blogDetails')
-    expect(details).toBeNull()
-  })
+  const incorrectUser = {
+    id: '622543178',
+    username: 'small man',
+    name: 'small man'
+  }
 
-  test('Clicking the view button makes the details visible', async () => {
-    render(<Blog blog={blog} />)
-    const user = userEvent.setup()
-    const button = screen.getByText('view')
-    await user.click(button)
-
-    const url = screen.getByText('urlnotavailable.com')
-    expect(url).toBeDefined()
-    const likes = screen.getByText('69', { exact: false })
-    expect(likes).toBeDefined()
-  })
-
-  test('Hitting like button twice causes handleLike to be called twice', async () => {
-    const mockHandler = vi.fn()
-    
-    render(<Blog blog={blog} handleLike={mockHandler} />)
-    const user = userEvent.setup()
-    const viewButton = screen.getByText('view')
-    await user.click(viewButton)
-
-    const button = screen.getByText('like')
-    await user.click(button)
-    await user.click(button)
-    expect(mockHandler.mock.calls).toHaveLength(2)
+  test('Info and Likes are displayed to unauthenticated, buttons are hidden', () => {
+    render(<Blog blog={blog} user={null} />)
+    expect(screen.getByText('Should not be in frontend: Test blog please remove')).toBeDefined()
+    expect(screen.getByText('urlnotavailable.com')).toBeDefined()
+    expect(screen.getByText('likes 69')).toBeDefined()
+    expect(screen.queryByRole('button', { name: 'like' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'remove' })).toBeNull()
   })
 })

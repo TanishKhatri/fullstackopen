@@ -3,11 +3,10 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
-import Notification from './components/Notification'
 import BlogsList from './components/BlogsList'
 import { 
-  BrowserRouter as Router,
-  Routes, Route, Link 
+  Routes, Route, Link,
+  useMatch, useNavigate 
 } from 'react-router-dom'
 
 const App = () => {
@@ -21,8 +20,7 @@ const App = () => {
 	  return null
 	  })
   const [blogs, setBlogs] = useState([])
-  const [notificationMessageObj, setNotificationMessageObj] = useState({ message: null, isError: false })
-  const newBlogRef = useRef()
+  const navigate = useNavigate()
 
   useEffect(() => {
     blogService.getAll().then((data) => {
@@ -37,10 +35,7 @@ const App = () => {
       window.localStorage.setItem('blogUser', JSON.stringify(returnedUser))
       setUser(returnedUser)
     } catch {
-      setNotificationMessageObj({ message: 'Invalid username or password', isError: true })
-      setTimeout(() => {
-        setNotificationMessageObj({ message: null, isError: false })
-      }, 5000)
+      console.log('Invalid username or password')
     }
   }
 
@@ -49,10 +44,7 @@ const App = () => {
       const returnedBlog = await blogService.updateBlog(blogId, blogObject)
       setBlogs(blogs.map(blog => blog.id === returnedBlog.id ? returnedBlog : blog))
     } catch {
-      setNotificationMessageObj({ message: 'Error occurred in liking the post', isError: true })
-      setTimeout(() => {
-        setNotificationMessageObj({ message: null, isError: false })
-      }, 5000)
+      console.log('Error occurred in liking the post')
     }
   }
 
@@ -60,11 +52,9 @@ const App = () => {
     try {
       await blogService.deleteBlog(blogId)
       setBlogs(blogs.filter((blog) => blog.id !== blogId ))
+      navigate('/')
     } catch(error) {
-      setNotificationMessageObj({ message: error.response.data.error, isError: true })
-      setTimeout(() => {
-        setNotificationMessageObj({ message: null, isError: false })
-      }, 5000)
+      console.log(error)
     }
   }
 
@@ -75,19 +65,12 @@ const App = () => {
   }
 
   const handleCreation = async ({ title, author, url }) => {
-    newBlogRef.current.toggleVisibility()
     try {
       const newBlogObject = await blogService.addBlog({ title, author, url })
       setBlogs(blogs.concat(newBlogObject))
-      setNotificationMessageObj({ message: `Blog '${title}' by '${author}' added`, isError: false })
-      setTimeout(() => {
-        setNotificationMessageObj({ message: null, isError: false })
-      }, 5000)
+      navigate('/')
     } catch(error) {
-      setNotificationMessageObj({ message: error.response.data.error, isError: true })
-      setTimeout(() => {
-        setNotificationMessageObj({ message: null, isError: false })
-      }, 5000)
+      console.log(error)
     }
   }
 
@@ -95,23 +78,30 @@ const App = () => {
     padding: 5
   }
   
+  const match = useMatch('/blogs/:id')
+  const blog = match ? blogs.find(blog => blog.id === match.params.id) : null
+
   return (
     <div>
-      <Router>
-        <Link style={padding} to='/'>blogs</Link>
-        <Link style={padding} to='/create'>new blog</Link>
-        {!user && <Link style={padding} to='/login'>login</Link>}
-        {user && <button onClick={handleLogout}>logout</button>}
+      <Link style={padding} to='/'>blogs</Link>
+      {user && <Link style={padding} to='/create'>new blog</Link>}
+      {!user && <Link style={padding} to='/login'>login</Link>}
+      {user && <button onClick={handleLogout}>logout</button>}
 
-        <Routes>
-          <Route path='/' element={
-            <BlogsList blogs={blogs} />
-          } />
-          <Route path='/login' element={
-            <LoginForm handleLogin={handleLogin} />
-          } />
-        </Routes> 
-      </Router>
+      <Routes>
+        <Route path='/' element={
+          <BlogsList blogs={blogs} />
+        } />
+        <Route path='/create' element={
+          <NewBlogForm handleCreation={handleCreation} />
+        } />
+        <Route path='/login' element={
+          <LoginForm handleLogin={handleLogin} />
+        } />
+        <Route path='/blogs/:id' element={
+          <Blog blog={blog} handleLike={handleLike} handleDelete={handleDelete} user={user} />
+        } />
+      </Routes> 
     </div>
   )
 }
