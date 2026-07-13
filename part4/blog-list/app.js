@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const mongoose = require('mongoose');
 const config = require('./utils/config');
 const logger = require('./utils/logger');
@@ -21,6 +22,8 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 app.use(middleware.tokenExtractor);
 
+app.use(express.static('dist'));
+
 app.use('/api/blogs', blogs);
 app.use('/api/users', users);
 app.use('/api/login', login);
@@ -28,6 +31,11 @@ app.use('/api/login', login);
 if (process.env.NODE_ENV === 'test') {
   app.use('/api/testing', testingRouter);
 }
+
+// SPA fallback: any non-API GET request returns index.html
+app.get('/*splat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
