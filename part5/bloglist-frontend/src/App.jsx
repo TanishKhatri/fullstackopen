@@ -4,7 +4,8 @@ import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 import BlogsList from './components/BlogsList'
-import { Container } from '@mui/material'
+import Notification from './components/Notification'
+import { Container, Box, AppBar, Toolbar, Button, Typography } from '@mui/material'
 import { 
   Routes, Route, Link,
   useMatch, useNavigate 
@@ -21,6 +22,7 @@ const App = () => {
 	  return null
 	  })
   const [blogs, setBlogs] = useState([])
+  const [notification, setNotification] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -35,8 +37,15 @@ const App = () => {
       blogService.setToken(returnedUser.token)
       window.localStorage.setItem('blogUser', JSON.stringify(returnedUser))
       setUser(returnedUser)
+      setNotification({text: `${username} logged in successfully`, type: 'success'})
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     } catch {
-      console.log('Invalid username or password')
+      setNotification({text: `Invalid username or password`, type: 'error' })
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     }
   }
 
@@ -54,15 +63,27 @@ const App = () => {
       await blogService.deleteBlog(blogId)
       setBlogs(blogs.filter((blog) => blog.id !== blogId ))
       navigate('/')
+      setNotification({text: `Blog Deleted successfully`, type: 'success'})
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     } catch(error) {
-      console.log(error)
+      setNotification({text: `Error occurred in deleting the blog`, type: 'error'})
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     }
   }
 
   const handleLogout = () => {
+    let prevUser = username
     window.localStorage.removeItem('blogUser')
     blogService.setToken(null)
     setUser(null)
+    setNotification({text: `${prevUser} logged out successfully`, type: 'success'})
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
   }
 
   const handleCreation = async ({ title, author, url }) => {
@@ -70,13 +91,16 @@ const App = () => {
       const newBlogObject = await blogService.addBlog({ title, author, url })
       setBlogs(blogs.concat(newBlogObject))
       navigate('/')
+      setNotification({text: `a new blog ${title} by ${author} added`, type: 'success'})
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     } catch(error) {
-      console.log(error)
+      setNotification({text: `failed to add the blog`, type: 'error'})
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
     }
-  }
-
-  const padding = {
-    padding: 5
   }
   
   const match = useMatch('/blogs/:id')
@@ -84,12 +108,19 @@ const App = () => {
 
   return (
     <Container>
-      <div>
-        <Link style={padding} to='/'>blogs</Link>
-        {user && <Link style={padding} to='/create'>new blog</Link>}
-        {!user && <Link style={padding} to='/login'>login</Link>}
-        {user && <button onClick={handleLogout}>logout</button>}
+      <Box>
+        <AppBar position='static'>
+          <Toolbar>
+            <Typography component='div' variant='h6' sx={{ flexGrow: 1 }}>
+              Blog App
+            </Typography>
+            <Button color='inherit' component={Link} to='/'>blogs</Button>
+            <Button color='inherit' component={Link} to='/create'>new blog</Button>
+            <Button color='inherit' component={Link} to='/login'>login</Button>
+          </Toolbar>
+        </AppBar>
 
+        <Notification notification={notification} />
         <Routes>
           <Route path='/' element={
             <BlogsList blogs={blogs} />
@@ -104,7 +135,7 @@ const App = () => {
             <Blog blog={blog} handleLike={handleLike} handleDelete={handleDelete} user={user} />
           } />
         </Routes> 
-      </div>
+      </Box>
     </Container>
   )
 }

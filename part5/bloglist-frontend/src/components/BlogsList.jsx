@@ -1,18 +1,21 @@
 import Blog from "./Blog"
 import { Link } from "react-router-dom"
+import { Typography, Box, List, ListItem } from "@mui/material"
 
 const BlogsList = ({ blogs, handleLike, handleDelete }) => {
   return (
-    <div>
-      <h2>blogs</h2>
-      <ul>
+    <Box sx={{ marginTop: 2 }}>
+      <Typography component='h2' variant='h4'>
+        blogs
+      </Typography>
+      <List>
         {blogs.map(blog =>
-          <li key={blog.id}>
+          <ListItem key={blog.id}>
             <Link to={`/blogs/${blog.id}`}>{blog.title} by {blog.author}</Link>
-          </li>
+          </ListItem>
         )}
-      </ul>
-    </div>
+      </List>
+    </Box>
   )
 }
 
