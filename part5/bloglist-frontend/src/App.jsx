@@ -115,7 +115,7 @@ const App = () => {
               Blog App
             </Typography>
             <Button color='inherit' component={Link} to='/'>blogs</Button>
-            <Button color='inherit' component={Link} to='/create'>new blog</Button>
+            {user && <Button color='inherit' component={Link} to='/create'>new blog</Button>}
             {!user && <Button color='inherit' component={Link} to='/login'>login</Button>}
             {user && <Button color='inherit' onClick={handleLogout}>logout</Button>}
           </Toolbar>
