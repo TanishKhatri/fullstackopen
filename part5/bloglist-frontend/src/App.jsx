@@ -4,6 +4,7 @@ import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 import BlogsList from './components/BlogsList'
+import { Container } from '@mui/material'
 import { 
   Routes, Route, Link,
   useMatch, useNavigate 
@@ -82,27 +83,29 @@ const App = () => {
   const blog = match ? blogs.find(blog => blog.id === match.params.id) : null
 
   return (
-    <div>
-      <Link style={padding} to='/'>blogs</Link>
-      {user && <Link style={padding} to='/create'>new blog</Link>}
-      {!user && <Link style={padding} to='/login'>login</Link>}
-      {user && <button onClick={handleLogout}>logout</button>}
+    <Container>
+      <div>
+        <Link style={padding} to='/'>blogs</Link>
+        {user && <Link style={padding} to='/create'>new blog</Link>}
+        {!user && <Link style={padding} to='/login'>login</Link>}
+        {user && <button onClick={handleLogout}>logout</button>}
 
-      <Routes>
-        <Route path='/' element={
-          <BlogsList blogs={blogs} />
-        } />
-        <Route path='/create' element={
-          <NewBlogForm handleCreation={handleCreation} />
-        } />
-        <Route path='/login' element={
-          <LoginForm handleLogin={handleLogin} />
-        } />
-        <Route path='/blogs/:id' element={
-          <Blog blog={blog} handleLike={handleLike} handleDelete={handleDelete} user={user} />
-        } />
-      </Routes> 
-    </div>
+        <Routes>
+          <Route path='/' element={
+            <BlogsList blogs={blogs} />
+          } />
+          <Route path='/create' element={
+            <NewBlogForm handleCreation={handleCreation} />
+          } />
+          <Route path='/login' element={
+            <LoginForm handleLogin={handleLogin} />
+          } />
+          <Route path='/blogs/:id' element={
+            <Blog blog={blog} handleLike={handleLike} handleDelete={handleDelete} user={user} />
+          } />
+        </Routes> 
+      </div>
+    </Container>
   )
 }
 

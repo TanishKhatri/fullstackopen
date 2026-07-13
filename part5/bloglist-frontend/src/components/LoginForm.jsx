@@ -1,13 +1,11 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { Box, Typography, TextField, Button } from "@mui/material"
 
 const LoginForm = ({ handleLogin }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
-  const margin = {
-    margin: '20px 5px'
-  }
 
   const submitLogin = (event) => {
     event.preventDefault()
@@ -15,21 +13,47 @@ const LoginForm = ({ handleLogin }) => {
     navigate('/')
   }
   return(
-    <form onSubmit={submitLogin} style={margin}>
-      <div>
-        <label>
-          Username:
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-        </label>
-      </div>
-      <div>
-        <label>
-          Password:
-          <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </label>
-      </div>
-      <button type="submit">Login</button>
-    </form>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start'
+      }}
+    >
+      <Typography variant="h3"
+        sx={{
+          marginY: 2
+        }}
+      >
+        Log in to application
+      </Typography>
+      <Box
+        component="form"
+        onSubmit={submitLogin}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          alignItems: 'flex-start'
+        }}
+      >
+        <TextField
+          label="username"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          variant="standard"
+        />
+        <TextField
+          label="password"
+          type="text"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          variant="standard"
+        />
+        <Button variant="contained" type="submit">Login</Button>
+      </Box>
+    </Box>
   )
 }
 
