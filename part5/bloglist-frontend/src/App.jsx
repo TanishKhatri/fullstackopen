@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
@@ -6,9 +6,9 @@ import NewBlogForm from './components/NewBlogForm'
 import BlogsList from './components/BlogsList'
 import Notification from './components/Notification'
 import { Container, Box, AppBar, Toolbar, Button, Typography } from '@mui/material'
-import { 
+import {
   Routes, Route, Link,
-  useMatch, useNavigate 
+  useMatch, useNavigate
 } from 'react-router-dom'
 
 const App = () => {
@@ -37,12 +37,12 @@ const App = () => {
       blogService.setToken(returnedUser.token)
       window.localStorage.setItem('blogUser', JSON.stringify(returnedUser))
       setUser(returnedUser)
-      setNotification({text: `${username} logged in successfully`, type: 'success'})
+      setNotification({ text: `${username} logged in successfully`, type: 'success' })
       setTimeout(() => {
         setNotification(null)
       }, 5000)
     } catch {
-      setNotification({text: `Invalid username or password`, type: 'error' })
+      setNotification({ text: 'Invalid username or password', type: 'error' })
       setTimeout(() => {
         setNotification(null)
       }, 5000)
@@ -63,12 +63,12 @@ const App = () => {
       await blogService.deleteBlog(blogId)
       setBlogs(blogs.filter((blog) => blog.id !== blogId ))
       navigate('/')
-      setNotification({text: `Blog Deleted successfully`, type: 'success'})
+      setNotification({ text: 'Blog Deleted successfully', type: 'success' })
       setTimeout(() => {
         setNotification(null)
       }, 5000)
-    } catch(error) {
-      setNotification({text: `Error occurred in deleting the blog`, type: 'error'})
+    } catch {
+      setNotification({ text: 'Error occurred in deleting the blog', type: 'error' })
       setTimeout(() => {
         setNotification(null)
       }, 5000)
@@ -76,11 +76,11 @@ const App = () => {
   }
 
   const handleLogout = () => {
-    let prevUser = username
+    let prevUser = user.name
     window.localStorage.removeItem('blogUser')
     blogService.setToken(null)
     setUser(null)
-    setNotification({text: `${prevUser} logged out successfully`, type: 'success'})
+    setNotification({ text: `${prevUser} logged out successfully`, type: 'success' })
     setTimeout(() => {
       setNotification(null)
     }, 5000)
@@ -91,18 +91,18 @@ const App = () => {
       const newBlogObject = await blogService.addBlog({ title, author, url })
       setBlogs(blogs.concat(newBlogObject))
       navigate('/')
-      setNotification({text: `a new blog ${title} by ${author} added`, type: 'success'})
+      setNotification({ text: `a new blog ${title} by ${author} added`, type: 'success' })
       setTimeout(() => {
         setNotification(null)
       }, 5000)
-    } catch(error) {
-      setNotification({text: `failed to add the blog`, type: 'error'})
+    } catch {
+      setNotification({ text: 'failed to add the blog', type: 'error' })
       setTimeout(() => {
         setNotification(null)
       }, 5000)
     }
   }
-  
+
   const match = useMatch('/blogs/:id')
   const blog = match ? blogs.find(blog => blog.id === match.params.id) : null
 
@@ -116,7 +116,8 @@ const App = () => {
             </Typography>
             <Button color='inherit' component={Link} to='/'>blogs</Button>
             <Button color='inherit' component={Link} to='/create'>new blog</Button>
-            <Button color='inherit' component={Link} to='/login'>login</Button>
+            {!user && <Button color='inherit' component={Link} to='/login'>login</Button>}
+            {user && <Button color='inherit' onClick={handleLogout}>logout</Button>}
           </Toolbar>
         </AppBar>
 
@@ -134,7 +135,7 @@ const App = () => {
           <Route path='/blogs/:id' element={
             <Blog blog={blog} handleLike={handleLike} handleDelete={handleDelete} user={user} />
           } />
-        </Routes> 
+        </Routes>
       </Box>
     </Container>
   )

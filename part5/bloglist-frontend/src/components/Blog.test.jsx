@@ -29,10 +29,31 @@ describe('Blog tests', () => {
 
   test('Info and Likes are displayed to unauthenticated, buttons are hidden', () => {
     render(<Blog blog={blog} user={null} />)
-    expect(screen.getByText('Should not be in frontend: Test blog please remove')).toBeDefined()
+    expect(screen.getByText('Test blog please remove')).toBeDefined()
+    expect(screen.getByText('By Should not be in frontend')).toBeDefined()
     expect(screen.getByText('urlnotavailable.com')).toBeDefined()
     expect(screen.getByText('likes 69')).toBeDefined()
-    expect(screen.queryByRole('button', { name: 'like' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'remove' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Like' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull()
+  })
+
+  test('Like is visible on incorrect user', () => {
+    render(<Blog blog={blog} user={incorrectUser} />)
+    expect(screen.getByText('Test blog please remove')).toBeDefined()
+    expect(screen.getByText('By Should not be in frontend')).toBeDefined()
+    expect(screen.getByText('urlnotavailable.com')).toBeDefined()
+    expect(screen.getByText('likes 69')).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Like' })).toBeDefined()
+    expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull()
+  })
+
+  test('both buttons are visible on correct user', () => {
+    render(<Blog blog={blog} user={correctUser} />)
+    expect(screen.getByText('Test blog please remove')).toBeDefined()
+    expect(screen.getByText('By Should not be in frontend')).toBeDefined()
+    expect(screen.getByText('urlnotavailable.com')).toBeDefined()
+    expect(screen.getByText('likes 69')).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Like' })).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Remove' })).toBeDefined()
   })
 })

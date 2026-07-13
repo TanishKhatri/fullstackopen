@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Paper, Box, Typography, Button, Link } from '@mui/material'
 
 const Blog = ({ blog, handleLike, handleDelete, user }) => {
@@ -15,7 +14,7 @@ const Blog = ({ blog, handleLike, handleDelete, user }) => {
   }
 
   return (
-    <Paper elevation={4} sx={{marginTop: 2}}>
+    <Paper elevation={4} sx={{ marginTop: 2 }}>
       <Box sx={{ padding: 2 }}>
         <Typography component='h3' variant='h4' sx={{ marginBottom: 1 }}>
           {blog.title}
@@ -29,23 +28,18 @@ const Blog = ({ blog, handleLike, handleDelete, user }) => {
         <Typography component='p' variant='body1' sx={{ color: 'grey' }}>
           Added by {blog.user.name}
         </Typography>
-        <Box sx={{ 
+        <Box sx={{
           display: 'flex',
           alignItems: 'center',
           marginTop: 1,
-          gap: 1 
+          gap: 1
         }}>
           <Typography component='p' variant='body1' sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
             likes {blog.likes}
           </Typography>
-          <Button onClick={likeHandler} variant='outlined'>Like</Button>
-          <Button onClick={deleteHandler} variant='outlined' color='error'>Remove</Button>
+          {user && <Button onClick={likeHandler} variant='outlined'>Like</Button>}
+          {user && user.id === blog.user.id && <Button onClick={deleteHandler} variant='outlined' color='error'>Remove</Button>}
         </Box>
-        {/* <h2>{blog.author}: {blog.title}</h2>
-        <div><a href={blog.url} target="_blank">{blog.url}</a></div>
-        <div>likes {blog.likes} {user && <button onClick={likeHandler}>like</button>}</div>
-        <div>Added by {blog.user.name}</div>
-        {user && user.id === blog.user.id && <button onClick={deleteHandler}>remove</button>} */}
       </Box>
     </Paper>
   )

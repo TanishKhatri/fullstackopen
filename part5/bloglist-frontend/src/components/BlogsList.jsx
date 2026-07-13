@@ -1,8 +1,8 @@
-import Blog from "./Blog"
-import { Link } from "react-router-dom"
-import { Typography, Box, List, ListItem } from "@mui/material"
+import Blog from './Blog'
+import { Link } from 'react-router-dom'
+import { Typography, Box, List, ListItem } from '@mui/material'
 
-const BlogsList = ({ blogs, handleLike, handleDelete }) => {
+const BlogsList = ({ blogs }) => {
   return (
     <Box sx={{ marginTop: 2 }}>
       <Typography component='h2' variant='h4'>

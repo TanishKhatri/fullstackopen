@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Typography, TextField, Button } from "@mui/material"
+import { Box, Typography, TextField, Button } from '@mui/material'
 
 const NewBlogForm = ({ handleCreation }) => {
   const [title, setTitle] = useState('')
@@ -57,15 +57,8 @@ const NewBlogForm = ({ handleCreation }) => {
           onChange={(e) => setUrl(e.target.value)}
           size="small"
         />
-        <Button variant="contained" type="submit" sx={{alignSelf: 'flex-start'}}>CREATE</Button>
+        <Button variant="contained" type="submit" sx={{ alignSelf: 'flex-start' }}>CREATE</Button>
       </Box>
-
-      {/* <form onSubmit={handleAdd}>
-        <div><label>title: <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} /></label></div>
-        <div><label>author: <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} /></label></div>
-        <div><label>url: <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} /></label></div>
-        <button type="submit">create</button>
-      </form> */}
     </Box>
   )
 }

@@ -8,14 +8,14 @@ test('All inputs of the form work', async () => {
 
   render(<NewBlogForm handleCreation={handleCreation} />)
 
-  const titleInput = screen.getByLabelText('title:', { exact: false })
-  const authorInput = screen.getByLabelText('author:', { exact: false })
-  const urlInput = screen.getByLabelText('url:', { exact: false })
+  const titleInput = screen.getByLabelText('title', { exact: false })
+  const authorInput = screen.getByLabelText('author', { exact: false })
+  const urlInput = screen.getByLabelText('url', { exact: false })
   await user.type(titleInput, 'This is the title')
   await user.type(authorInput, 'Author stuff')
   await user.type(urlInput, 'example.com')
 
-  const submitButton = screen.getByText('create')
+  const submitButton = screen.getByText('CREATE')
   await user.click(submitButton)
 
   expect(handleCreation.mock.calls[0][0].title).toBe('This is the title')

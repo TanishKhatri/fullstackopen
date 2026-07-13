@@ -1,7 +1,7 @@
-import { Alert } from "@mui/material"
+import { Alert } from '@mui/material'
 
 const Notification = ({ notification }) => {
-  if (notification == null) {
+  if (notification === null) {
     return null
   }
 
